@@ -61,11 +61,7 @@ class ConditionalPeriod implements Serializable
     public function __construct($type, $lower = null, $upper = null, $result = null)
     {
         if (strlen($type) > 1) {
-            try {
-                list($type, $lower, $upper, $result) = self::parseStringFormat($type);
-            } catch (Exception $e) {
-                throw $e;
-            }
+            list($type, $lower, $upper, $result) = self::parseStringFormat($type);
         }
 
         if (!in_array($type, [ConditionalType::CATEGORY, ConditionalType::DURATION], true)) {
