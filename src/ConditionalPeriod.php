@@ -65,7 +65,7 @@ class ConditionalPeriod implements Serializable
     {
         if (strlen($type) > 1) {
             try {
-                list($type, $lower, $upper, $result) = $this->parseStringFormat($type);
+                list($type, $lower, $upper, $result) = self::parseStringFormat($type);
             } catch (Exception $e) {
                 throw $e;
             }
@@ -132,7 +132,7 @@ class ConditionalPeriod implements Serializable
      *
      * @throws InvalidArgumentException
      */
-    protected function parseStringFormat($str)
+    protected static function parseStringFormat($str)
     {
         $arguments = [
             $str[0],
