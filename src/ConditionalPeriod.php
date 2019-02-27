@@ -58,6 +58,8 @@ class ConditionalPeriod implements Serializable
      *                                        see $lower, must be greater than or equal to $lower
      * @param string|DateInterval     $result Result of the condition as:
      *                                        see $lower, except int.
+     *
+     * @throws InvalidArgumentException The argument couldn't be parsed
      */
     public function __construct($type, $lower = null, $upper = null, $result = null)
     {
@@ -128,7 +130,7 @@ class ConditionalPeriod implements Serializable
      * @param  string $str String format of the class (got from toString() or __toString())
      * @return array       Array of arguments needed by the constructor
      *
-     * @throw  InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function parseStringFormat($str)
     {
