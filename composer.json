@@ -1,0 +1,31 @@
+{
+    "name": "max13/conditional-period",
+    "description": "ConditionalPeriod is a php class allowing to store 2 numerical/DateInterval intervals resulting in a DateInterval.",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Adnan RIHAN",
+            "email": "adnan@rihan.fr"
+        }
+    ],
+    "keywords": [
+        "conditional",
+        "period",
+        "DateInterval"
+    ],
+    "homepage": "https://github.com/max13/conditional-period-php",
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ]
+    }
+}
