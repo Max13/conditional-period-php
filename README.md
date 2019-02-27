@@ -30,19 +30,19 @@ use MX\ConditionalPeriod;
 ...
 $prior_notices = [
     new ConditionalPeriod(
-        ConditionalPeriod::CATEGORY,
+        ConditionalType::CATEGORY,
         1,
         5,
         DateInterval::createFromDateString('1 month')
     ),
     new ConditionalPeriod(
-        ConditionalPeriod::CATEGORY,
+        ConditionalType::CATEGORY,
         6,
         7,
         DateInterval::createFromDateString('2 months')
     ),
     new ConditionalPeriod(
-        ConditionalPeriod::CATEGORY,
+        ConditionalType::CATEGORY,
         8,
         12,
         DateInterval::createFromDateString('3 months')
@@ -51,13 +51,13 @@ $prior_notices = [
 
 $trial_periods = [
     new ConditionalPeriod(
-        ConditionalPeriod::DURATION,
+        ConditionalType::DURATION,
         DateInterval::createFromDateString(0),
         DateInterval::createFromDateString('6 months'),
         DateInterval::createFromDateString('15 days')
     ),
     new ConditionalPeriod(
-        ConditionalPeriod::DURATION,
+        ConditionalType::DURATION,
         DateInterval::createFromDateString('6 months'),
         DateInterval::createFromDateString('99 years'), // Equivalent to +∞
         DateInterval::createFromDateString('1 month')

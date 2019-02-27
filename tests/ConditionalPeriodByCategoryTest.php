@@ -3,6 +3,7 @@
 namespace MX\Tests;
 
 use MX\ConditionalPeriod;
+use MX\ConditionalType;
 use DateInterval;
 use Exception;
 use InvalidArgumentException;
@@ -12,13 +13,13 @@ class ConditionalPeriodByCategoryTest extends TestCase
 {
     public function testConstructorWithValidType()
     {
-        $cp = new ConditionalPeriod(ConditionalPeriod::CATEGORY, 1, 2, new DateInterval('P1D'));
-        $this->assertEquals(ConditionalPeriod::CATEGORY, $cp->type());
+        $cp = new ConditionalPeriod(ConditionalType::CATEGORY, 1, 2, new DateInterval('P1D'));
+        $this->assertEquals(ConditionalType::CATEGORY, $cp->type());
     }
 
     public function testFailConstructorWithInvalidLower()
     {
-        $type = ConditionalPeriod::CATEGORY;
+        $type = ConditionalType::CATEGORY;
         $upper = 2;
         $result = new DateInterval('P1D');
         $exceptionMessage = 'The argument $lower must be a valid category (Non null, positive integer)';
@@ -83,7 +84,7 @@ class ConditionalPeriodByCategoryTest extends TestCase
 
     public function testConstructorWithValidLower()
     {
-        $type = ConditionalPeriod::CATEGORY;
+        $type = ConditionalType::CATEGORY;
         $result = new DateInterval('P1D');
 
         $cp = new ConditionalPeriod($type, 1, 1, $result);
@@ -101,7 +102,7 @@ class ConditionalPeriodByCategoryTest extends TestCase
 
     public function testFailConstructorWithInvalidUpper()
     {
-        $type = ConditionalPeriod::CATEGORY;
+        $type = ConditionalType::CATEGORY;
         $lower = 2;
         $result = new DateInterval('P1D');
         $exceptionMessage = 'The argument $upper must be a valid category (Non null, positive integer)';
@@ -166,7 +167,7 @@ class ConditionalPeriodByCategoryTest extends TestCase
 
     public function testConstructorWithValidUpper()
     {
-        $type = ConditionalPeriod::CATEGORY;
+        $type = ConditionalType::CATEGORY;
         $result = new DateInterval('P1D');
 
         $cp = new ConditionalPeriod($type, 1, 1, $result);

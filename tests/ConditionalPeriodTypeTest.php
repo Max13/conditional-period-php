@@ -3,6 +3,7 @@
 namespace MX\Tests;
 
 use MX\ConditionalPeriod;
+use MX\ConditionalType;
 use DateInterval;
 use Exception;
 use InvalidArgumentException;

@@ -3,6 +3,7 @@
 namespace MX\Tests;
 
 use MX\ConditionalPeriod;
+use MX\ConditionalType;
 use DateInterval;
 use Exception;
 use InvalidArgumentException;
@@ -12,13 +13,13 @@ class ConditionalPeriodByDurationTest extends TestCase
 {
     public function testConstructorWithValidType()
     {
-        $cp = new ConditionalPeriod(ConditionalPeriod::DURATION, new DateInterval('P1D'), new DateInterval('P2D'), new DateInterval('P1D'));
-        $this->assertEquals(ConditionalPeriod::DURATION, $cp->type());
+        $cp = new ConditionalPeriod(ConditionalType::DURATION, new DateInterval('P1D'), new DateInterval('P2D'), new DateInterval('P1D'));
+        $this->assertEquals(ConditionalType::DURATION, $cp->type());
     }
 
     public function testFailConstructorWithInvalidLowerDuration()
     {
-        $type = ConditionalPeriod::DURATION;
+        $type = ConditionalType::DURATION;
         $upper = new DateInterval('P1D');
         $result = new DateInterval('P1D');
         $exceptionMessage = 'The argument $lower must be a valid DateInterval, an iso8601 interval specification string or a relative date string';
@@ -51,7 +52,7 @@ class ConditionalPeriodByDurationTest extends TestCase
 
     public function testConstructorWithValidLower()
     {
-        $type = ConditionalPeriod::DURATION;
+        $type = ConditionalType::DURATION;
         $result = new DateInterval('P1D');
 
         // DateInterval
@@ -96,7 +97,7 @@ class ConditionalPeriodByDurationTest extends TestCase
 
     public function testFailConstructorWithInvalidUpper()
     {
-        $type = ConditionalPeriod::DURATION;
+        $type = ConditionalType::DURATION;
         $lower = new DateInterval('P2D');
         $result = new DateInterval('P1D');
         $exceptionMessage = 'The argument $upper must be a valid DateInterval, an iso8601 interval specification string or a relative date string';
@@ -145,7 +146,7 @@ class ConditionalPeriodByDurationTest extends TestCase
 
     public function testConstructorWithValidUpper()
     {
-        $type = ConditionalPeriod::DURATION;
+        $type = ConditionalType::DURATION;
         $result = new DateInterval('P1D');
 
         // DateInterval

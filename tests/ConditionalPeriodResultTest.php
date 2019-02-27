@@ -3,6 +3,7 @@
 namespace MX\Tests;
 
 use MX\ConditionalPeriod;
+use MX\ConditionalType;
 use DateInterval;
 use Exception;
 use InvalidArgumentException;
@@ -12,7 +13,7 @@ class ConditionalPeriodResultTest extends TestCase
 {
     public function testFailConstructorWithInvalidResult()
     {
-        $type = ConditionalPeriod::DURATION;
+        $type = ConditionalType::DURATION;
         $lower = new DateInterval('P1D');
         $upper = new DateInterval('P2D');
         $exceptionMessage = 'The argument $result must be a valid DateInterval, an iso8601 interval specification string or a relative date string';
@@ -61,7 +62,7 @@ class ConditionalPeriodResultTest extends TestCase
 
     public function testConstructorWithValidUpper()
     {
-        $type = ConditionalPeriod::DURATION;
+        $type = ConditionalType::DURATION;
         $lower = new DateInterval('P1D');
         $upper = new DateInterval('P2D');
 

@@ -9,13 +9,10 @@ use Serializable;
 
 class ConditionalPeriod implements Serializable
 {
-    const CATEGORY = 'C';
-    const DURATION = 'D';
-
     /**
      * Type of the condition
      *
-     * @var string  One of the defined consts (1 char)
+     * @var MX\ConditionalType
      */
     protected $type;
 
@@ -46,20 +43,20 @@ class ConditionalPeriod implements Serializable
     /**
      * Construct the ConditionalPeriod
      *
-     * @param string                  $type   One of the ConditionalPeriod consts
-     *                                        Also accepts ConditionalPeriod as string,
-     *                                        when the constructor is used with 1 argument
-     * @param int|string|DateInterval $lower  Lower boundary of the condition interval as:
-     *                                        - int, for condition based on category
-     *                                        - as DateInterval
-     *                                        - as iso8601 interval specification
-     *                                        - as relative date string
-     * @param int|string|DateInterval $upper  Upper boundary of the condition interval as:
-     *                                        see $lower, must be greater than or equal to $lower
-     * @param string|DateInterval     $result Result of the condition as:
-     *                                        see $lower, except int.
+     * @param MX\ConditionalType|string $type   One of the ConditionalType consts
+     *                                          Also accepts ConditionalPeriod as string,
+     *                                          when the constructor is used with 1 argument
+     * @param int|string|DateInterval   $lower  Lower boundary of the condition interval as:
+     *                                          - int, for condition based on category
+     *                                          - as DateInterval
+     *                                          - as iso8601 interval specification
+     *                                          - as relative date string
+     * @param int|string|DateInterval   $upper  Upper boundary of the condition interval as:
+     *                                          see $lower, must be greater than or equal to $lower
+     * @param string|DateInterval       $result Result of the condition as:
+     *                                          see $lower, except int.
      *
-     * @throws InvalidArgumentException The argument couldn't be parsed
+     * @throws InvalidArgumentException         The argument couldn't be parsed
      */
     public function __construct($type, $lower = null, $upper = null, $result = null)
     {
@@ -71,14 +68,14 @@ class ConditionalPeriod implements Serializable
             }
         }
 
-        if (!in_array($type, [self::CATEGORY, self::DURATION], true)) {
-            throw new InvalidArgumentException('The argument $type must be one of the ConditionalPeriod types (ConditionalPeriod::CATEGORY or ConditionalPeriod::DURATION). Input was: ('.gettype($type).')');
+        if (!in_array($type, [ConditionalType::CATEGORY, ConditionalType::DURATION], true)) {
+            throw new InvalidArgumentException('The argument $type must be one of the ConditionalPeriod types (ConditionalType::CATEGORY or ConditionalType::DURATION). Input was: ('.gettype($type).')');
         }
         $this->type = $type;
 
-        if ($type === self::CATEGORY && (gettype($lower) !== 'integer' || $lower < 1)) {
+        if ($type === ConditionalType::CATEGORY && (gettype($lower) !== 'integer' || $lower < 1)) {
             throw new InvalidArgumentException('The argument $lower must be a valid category (Non null, positive integer). Input was: ('.gettype($lower).')');
-        } elseif ($type === self::DURATION && !($lower instanceof DateInterval)) {
+        } elseif ($type === ConditionalType::DURATION && !($lower instanceof DateInterval)) {
             if (is_string($lower)) {
                 if ($lower[0] == 'P') {
                     $lower = new DateInterval($lower);
@@ -91,9 +88,9 @@ class ConditionalPeriod implements Serializable
         }
         $this->lower = $lower;
 
-        if ($type === self::CATEGORY && (gettype($upper) !== 'integer' || $upper < 1)) {
+        if ($type === ConditionalType::CATEGORY && (gettype($upper) !== 'integer' || $upper < 1)) {
             throw new InvalidArgumentException('The argument $upper must be a valid category (Non null, positive integer). Input was: ('.gettype($upper).')');
-        } elseif ($type === self::DURATION && !($upper instanceof DateInterval)) {
+        } elseif ($type === ConditionalType::DURATION && !($upper instanceof DateInterval)) {
             if (is_string($upper)) {
                 if ($upper[0] == 'P') {
                     $upper = new DateInterval($upper);
@@ -105,8 +102,8 @@ class ConditionalPeriod implements Serializable
             }
         }
         if (
-            ($type === self::CATEGORY && $upper < $lower)
-            || ($type === self::DURATION && date_create('2019-01-01')->add($upper) < date_create('2019-01-01')->add($lower))
+            ($type === ConditionalType::CATEGORY && $upper < $lower)
+            || ($type === ConditionalType::DURATION && date_create('2019-01-01')->add($upper) < date_create('2019-01-01')->add($lower))
         ) {
             throw new InvalidArgumentException('The argument $upper must be a greater than or equal to $lower). Input was: ('.gettype($upper).')');
         }
@@ -167,7 +164,7 @@ class ConditionalPeriod implements Serializable
     /**
      * Type accessor
      *
-     * @return string 1 char string
+     * @return MX\ConditionalType Which is a 1 letter string
      */
     public function type()
     {
@@ -259,7 +256,7 @@ class ConditionalPeriod implements Serializable
     {
         $iso8601 = "$this->type";
 
-        if ($this->type === self::CATEGORY) {
+        if ($this->type === ConditionalType::CATEGORY) {
             $iso8601 .= "$this->lower-$this->upper";
         } else {
             $iso8601 .= self::toIso8601($this->lower).self::toIso8601($this->upper);
