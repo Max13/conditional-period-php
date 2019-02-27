@@ -46,14 +46,14 @@ class ConditionalPeriod implements Serializable
      * @param MX\ConditionalType|string $type   One of the ConditionalType consts
      *                                          Also accepts ConditionalPeriod as string,
      *                                          when the constructor is used with 1 argument
-     * @param int|string|DateInterval   $lower  Lower boundary of the condition interval as:
+     * @param DateInterval|string|int   $lower  Lower boundary of the condition interval as:
      *                                          - int, for condition based on category
      *                                          - as DateInterval
      *                                          - as iso8601 interval specification
      *                                          - as relative date string
-     * @param int|string|DateInterval   $upper  Upper boundary of the condition interval as:
+     * @param DateInterval|string|int   $upper  Upper boundary of the condition interval as:
      *                                          see $lower, must be greater than or equal to $lower
-     * @param string|DateInterval       $result Result of the condition as:
+     * @param DateInterval|string       $result Result of the condition as:
      *                                          see $lower, except int.
      *
      * @throws InvalidArgumentException         The argument couldn't be parsed
