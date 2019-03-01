@@ -1,6 +1,6 @@
 <?php
 
-namespace MX\Tests;
+namespace MX\Tests\ConditionalPeriod;
 
 use Carbon\CarbonInterval;
 use Exception;
