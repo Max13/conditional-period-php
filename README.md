@@ -27,6 +27,7 @@ Or download the repo and add the files (in `/src`) to your project.
 
 ```php
 use Carbon\CarbonInterval;
+use MX\ConditionalCollection;
 use MX\ConditionalPeriod;
 ...
 $prior_notices = [
@@ -50,6 +51,9 @@ $prior_notices = [
     ),
 ];
 
+$prior_notices = ConditionalCollection::fromArray($prior_notices);
+
+
 $trial_periods = [
     new ConditionalPeriod(
         ConditionalType::DURATION,
@@ -64,12 +68,15 @@ $trial_periods = [
         CarbonInterval::make('1 month')
     ),
 ];
+
+$trial_periods = ConditionalCollection::fromArray($trial_periods);
 ```
 
 
 ### Using the short string format, aka "badass mode"
 
 ```php
+use MX\ConditionalCollection;
 use MX\ConditionalPeriod;
 ...
 $prior_notices = [
@@ -78,10 +85,19 @@ $prior_notices = [
     new ConditionalPeriod('C8-12P3M'),
 ];
 
+// OR
+$prior_notices = new ConditionalCollection;
+$prior_notices[] = new ConditionalPeriod('C1-5P1M');
+$prior_notices[] = 'C6-7P2M';
+$prior_notices[] = new ConditionalPeriod('C8-12P3M');
+
 $trial_periods = [
     new ConditionalPeriod('DP0DP6MP15D'),
     new ConditionalPeriod('DP6MP99YP1M')
 ];
+
+// OR
+$trial_periods = ConditionalCollection::parse('DP0DP6MP15D,DP6MP99YP1M');
 ```
 
 ### Miscellaneous
@@ -95,6 +111,12 @@ So, here are the 5 same ways to input a `Carboninterval` using `ConditionalPerio
 - `new Carboninterval('P1Y2M3D');`
 - `'1 year, 2 months, 3 days'`
 - `'P1Y2M3D'`
+
+And there are 3 ways to create a `ConditionalCollection`:
+
+- `new ConditionalCollection`, then treat it as an array: `$c[] = new ConditionalPeriod(…); // or ConditionalPeriod string form`
+- `ConditionalCollection::parse(…)`, which takes its own `toString()` form
+- `ConditionalCollection::fromArray(…)`, which takes an array of `ConditionalPeriod` or its string form
 
 ## Need help?
 Open an issue.

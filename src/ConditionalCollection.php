@@ -28,6 +28,8 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
      *                                                - MX\ConditionalPeriod
      *                                                - the string form of an MX\ConditionalPeriod
      * @return MX\ConditionalCollection
+     *
+     * @throws InvalidArgumentException
      */
     public static function create($value)
     {
@@ -47,6 +49,8 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
      *
      * @param  string $str
      * @return MX\ConditionalCollection
+     *
+     * @throws InvalidArgumentException
      */
     public static function parse($str)
     {
@@ -64,6 +68,36 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
     }
 
     /**
+     * Instanciate an MX\ConditionalCollection from an array of MX\ConditionalPeriod
+     *
+     * @return MX\ConditionalCollection
+     *
+     * @throws InvalidArgumentException
+     */
+    public static function fromArray($array)
+    {
+        if (!is_array($array)) {
+            throw new InvalidArgumentException('First argument of fromArray() must be an array. '.gettype($array).' given.');
+        }
+
+        $collection = new self;
+
+        foreach ($array as $period) {
+            if (is_string($period)) {
+                $period = ConditionalPeriod::parse($period);
+            }
+
+            if (!($period instanceof ConditionalPeriod)) {
+                throw new InvalidArgumentException('First argument of fromArray() must only contain only MX\ConditionalPeriod or its string form elements. '.gettype($period).' given.');
+            }
+
+            $collection[] = $period;
+        }
+
+        return $collection;
+    }
+
+    /**
      * Find the MX\ConditionalPeriod matching the given value
      * and returns the matched one, or null if none matched.
      *
@@ -73,6 +107,8 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
      *                                                       Carbon\CarbonInterval
      *                                                     - int, for conditions based on category
      * @return MX\ConditionalPeriod|null
+     *
+     * @throws InvalidArgumentException
      */
     public function find($value)
     {
