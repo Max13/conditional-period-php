@@ -29,6 +29,7 @@
         ]
     },
     "require": {
-        "nesbot/carbon": "^1.36"
+        "nesbot/carbon": "^1.36",
+        "php": ">=5.6"
     }
 }

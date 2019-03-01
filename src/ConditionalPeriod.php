@@ -6,6 +6,7 @@ use Carbon\CarbonInterval;
 use Exception;
 use InvalidArgumentException;
 use Serializable;
+use TypeError;
 
 class ConditionalPeriod implements Serializable
 {
@@ -43,9 +44,7 @@ class ConditionalPeriod implements Serializable
     /**
      * Construct the ConditionalPeriod
      *
-     * @param  MX\ConditionalType               $type   One of MX\ConditionalType consts.
-     *                                                  Also accepts ConditionalPeriod as string,
-     *                                                  when the constructor is used with 1 argument
+     * @param  MX\ConditionalType               $type   One of MX\ConditionalType consts
      * @param  Carbon\CarbonInterval|string|int $lower  Lower boundary of the condition interval as:
      *                                                      - as Carbon\CarbonInterval
      *                                                      - as string, used to construct an Carbon\CarbonInterval
@@ -57,16 +56,8 @@ class ConditionalPeriod implements Serializable
      *
      * @throws InvalidArgumentException                 The argument couldn't be parsed
      */
-    public function __construct($type, $lower = null, $upper = null, $result = null)
+    public function __construct($type, $lower, $upper, $result)
     {
-        if (strlen($type) > 1) {
-            $parts = self::parseStringFormat($type);
-            $type = $parts[0];
-            $lower = $parts[1];
-            $upper = $parts[2];
-            $result = $parts[3];
-        }
-
         if (!in_array($type, [ConditionalType::CATEGORY, ConditionalType::DURATION], true)) {
             throw new InvalidArgumentException('The argument $type must be one of the ConditionalPeriod types (ConditionalType::CATEGORY or ConditionalType::DURATION). Input was: ('.gettype($type).')');
         }
@@ -111,15 +102,33 @@ class ConditionalPeriod implements Serializable
     /**
      * Parse string format of this class
      *
-     * @param  string $str String format of the class (got from toString() or __toString())
-     * @return array       Array of arguments needed by the constructor
+     * @param  string               $short_format String format of the class
+     * @return MX\ConditionalPeriod
      *
      * @throws InvalidArgumentException
      */
-    protected static function parseStringFormat($str)
+    public static function parse($short_format)
     {
+        $arguments = self::parseToArray($short_format);
+
+        return new self(...$arguments);
+    }
+
+    /**
+     * Parse a string short format (given by toString() or __toString())
+     * to an array
+     *
+     * @param  string $str
+     * @return array       Array of arguments needed by the constructor
+     */
+    protected static function parseToArray($str)
+    {
+        if (!is_string($str)) {
+            throw new TypeError('Argument 1 passed to MX\ConditionalPeriod::parseToArray() must be a string, '.gettype($str).' given.');
+        }
+
         $arguments = [
-            $str[0],
+            substr($str[0], 0, 1),
         ];
 
         for ($i=0, $c=1; $i<2; ++$i) {
@@ -234,6 +243,8 @@ class ConditionalPeriod implements Serializable
      */
     public function unserialize($serialized)
     {
-        $this->__construct(unserialize($serialized));
+        $arguments = self::parseToArray(unserialize($serialized));
+
+        $this->__construct(...$arguments);
     }
 }

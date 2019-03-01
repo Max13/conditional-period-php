@@ -1,6 +1,6 @@
 <?php
 
-namespace MX\Tests\ConditionalPeriod;
+namespace MX\Tests;
 
 use Carbon\CarbonInterval;
 use Exception;
@@ -17,7 +17,7 @@ class ConditionalPeriodFromToStringTest extends TestCase
         $cp = new ConditionalPeriod(ConditionalType::CATEGORY, 1, 2, new CarbonInterval('P1Y'));
 
         $this->assertEquals($cpString, $cp->toString());
-        $this->assertEquals($cp, new ConditionalPeriod($cpString));
+        $this->assertEquals($cp, ConditionalPeriod::parse($cpString));
     }
 
     public function testCategoryFromToSerialization()
@@ -35,7 +35,7 @@ class ConditionalPeriodFromToStringTest extends TestCase
         $cp = new ConditionalPeriod(ConditionalType::DURATION, new CarbonInterval('P1Y'), new CarbonInterval('P1Y2M3D'), new CarbonInterval('P1Y2M3DT1H2M3S'));
 
         $this->assertEquals($cpString, $cp->toString());
-        $this->assertEquals($cp, new ConditionalPeriod($cpString));
+        $this->assertEquals($cp, ConditionalPeriod::parse($cpString));
     }
 
     public function testDurationFromToSerialization()
