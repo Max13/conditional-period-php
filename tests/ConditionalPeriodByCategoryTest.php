@@ -182,4 +182,24 @@ class ConditionalPeriodByCategoryTest extends TestCase
         $cp = new ConditionalPeriod($type, 2, 4, $result);
         $this->assertEquals(4, $cp->upper());
     }
+
+    public function testDoesntMatchOutOfBoudariesValue()
+    {
+        $cp = new ConditionalPeriod(ConditionalType::CATEGORY, 3, 6, new CarbonInterval('P1D'));
+
+        $this->assertFalse($cp->match(1));
+        $this->assertFalse($cp->match(2));
+        $this->assertFalse($cp->match(7));
+        $this->assertFalse($cp->match(8));
+    }
+
+    public function testMatchInBoundariesValue()
+    {
+        $cp = new ConditionalPeriod(ConditionalType::CATEGORY, 3, 6, new CarbonInterval('P1D'));
+
+        $this->assertTrue($cp->match(3));
+        $this->assertTrue($cp->match(4));
+        $this->assertTrue($cp->match(5));
+        $this->assertTrue($cp->match(6));
+    }
 }

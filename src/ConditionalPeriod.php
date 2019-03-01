@@ -275,6 +275,25 @@ class ConditionalPeriod implements Serializable
     }
 
     /**
+     * Match the given value to the current condition
+     *
+     * @param  Carbon\CarbonInterval|string|int $value The value to match
+     * @return bool
+     *
+     * @throws InvalidArgumentException
+     */
+    public function match($value)
+    {
+        $value = $this->checkLowerArgument($value);
+
+        if ($value instanceof CarbonInterval) {
+            return $this->lower->compare($value) <= 0 && $this->upper->compare($value) >= 0;
+        }
+
+        return $value >= $this->lower && $value <= $this->upper;
+    }
+
+    /**
      * Stringify the object
      *
      * @return string

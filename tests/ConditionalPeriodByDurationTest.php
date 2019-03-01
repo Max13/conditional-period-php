@@ -188,4 +188,44 @@ class ConditionalPeriodByDurationTest extends TestCase
         $cp = new ConditionalPeriod($type, new CarbonInterval('P2D'), '4 days', $result);
         $this->assertEquals(new CarbonInterval('P4D'), $cp->upper());
     }
+
+    public function testDoesntMatchOutOfBoudariesValueAsCarbonInterval()
+    {
+        $cp = new ConditionalPeriod(ConditionalType::DURATION, new CarbonInterval('P3M'), new CarbonInterval('P6M'), new CarbonInterval('P15D'));
+
+        $this->assertFalse($cp->match(new CarbonInterval('P1M')));
+        $this->assertFalse($cp->match(new CarbonInterval('P2M')));
+        $this->assertFalse($cp->match(new CarbonInterval('P7M')));
+        $this->assertFalse($cp->match(new CarbonInterval('P8M')));
+    }
+
+    public function testMatchInBoundariesValueAsCarbonInterval()
+    {
+        $cp = new ConditionalPeriod(ConditionalType::DURATION, new CarbonInterval('P3M'), new CarbonInterval('P6M'), new CarbonInterval('P15D'));
+
+        $this->assertTrue($cp->match(new CarbonInterval('P3M')));
+        $this->assertTrue($cp->match(new CarbonInterval('P4M')));
+        $this->assertTrue($cp->match(new CarbonInterval('P5M')));
+        $this->assertTrue($cp->match(new CarbonInterval('P6M')));
+    }
+
+    public function testDoesntMatchOutOfBoudariesValueAsIso8106()
+    {
+        $cp = new ConditionalPeriod(ConditionalType::DURATION, new CarbonInterval('P3M'), new CarbonInterval('P6M'), new CarbonInterval('P15D'));
+
+        $this->assertFalse($cp->match('P1M'));
+        $this->assertFalse($cp->match('P2M'));
+        $this->assertFalse($cp->match('P7M'));
+        $this->assertFalse($cp->match('P8M'));
+    }
+
+    public function testMatchInBoundariesValueAsIso8106()
+    {
+        $cp = new ConditionalPeriod(ConditionalType::DURATION, new CarbonInterval('P3M'), new CarbonInterval('P6M'), new CarbonInterval('P15D'));
+
+        $this->assertTrue($cp->match('P3M'));
+        $this->assertTrue($cp->match('P4M'));
+        $this->assertTrue($cp->match('P5M'));
+        $this->assertTrue($cp->match('P6M'));
+    }
 }
