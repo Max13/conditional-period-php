@@ -150,6 +150,61 @@ class ConditionalPeriodByCategoryTest extends TestCase
         $this->assertEquals($c2, $c[2]);
     }
 
+    public function testFromArrayWithInvalidValues()
+    {
+        foreach (
+            [-1, 0, 1, null, new CarbonInterval, ConditionalPeriod::parse('DP1DP2DP3D')]
+            as $val
+        ) {
+            try {
+                $collection = ConditionalCollection::fromArray($val);
+            } catch (Exception $e) {
+                $this->assertInstanceOf(InvalidArgumentException::class, $e);
+                $this->assertStringStartsWith('First argument of fromArray() must be an array', $e->getMessage());
+            }
+            $this->assertNull($collection, 'Constructed with '.strval($val));
+        }
+    }
+
+    public function testFromArrayWithArrayElements()
+    {
+        foreach ([[-1], [0], [1], [null], [new CarbonInterval]] as $val) {
+            try {
+                $collection = ConditionalCollection::fromArray($val);
+            } catch (Exception $e) {
+                $this->assertInstanceOf(InvalidArgumentException::class, $e);
+                $this->assertStringStartsWith('First argument of fromArray() must only contain only MX\ConditionalPeriod or its string form elements', $e->getMessage());
+            }
+            $this->assertNull($collection, 'Constructed with '.strval($val));
+        }
+    }
+
+    public function testFromArrayWithValidArrayElements()
+    {
+        $c0 = new ConditionalPeriod(
+            ConditionalType::CATEGORY,
+            1,
+            3,
+            new CarbonInterval('P3D')
+        );
+        $c1 = 'C4-6P6D';
+        $c2 = new ConditionalPeriod(
+            ConditionalType::CATEGORY,
+            7,
+            10,
+            'P9D'
+        );
+        $arr = [$c0, $c1, $c2];
+
+        $c = ConditionalCollection::fromArray($arr);
+
+        $this->assertInstanceOf(ConditionalCollection::class, $c);
+        $this->assertCount(3, $c);
+        $this->assertEquals($c0, $c[0]);
+        $this->assertEquals(ConditionalPeriod::parse($c1), $c[1]);
+        $this->assertEquals($c2, $c[2]);
+    }
+
     public function testFindWithInvalidValues()
     {
         $c = new ConditionalCollection;

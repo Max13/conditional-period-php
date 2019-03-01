@@ -64,6 +64,34 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
     }
 
     /**
+     * Instanciate an MX\ConditionalCollection from an array of MX\ConditionalPeriod
+     *
+     * @return MX\ConditionalCollection
+     */
+    public static function fromArray($array)
+    {
+        if (!is_array($array)) {
+            throw new InvalidArgumentException('First argument of fromArray() must be an array. '.gettype($array).' given.');
+        }
+
+        $collection = new self;
+
+        foreach ($array as $period) {
+            if (is_string($period)) {
+                $period = ConditionalPeriod::parse($period);
+            }
+
+            if (!($period instanceof ConditionalPeriod)) {
+                throw new InvalidArgumentException('First argument of fromArray() must only contain only MX\ConditionalPeriod or its string form elements. '.gettype($period).' given.');
+            }
+
+            $collection[] = $period;
+        }
+
+        return $collection;
+    }
+
+    /**
      * Find the MX\ConditionalPeriod matching the given value
      * and returns the matched one, or null if none matched.
      *
