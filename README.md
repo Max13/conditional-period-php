@@ -26,6 +26,7 @@ Or download the repo and add the files (in `/src`) to your project.
 ### Using 4 arguments on the constructor, aka "classic instantiation"
 
 ```php
+use Carbon\CarbonInterval;
 use MX\ConditionalPeriod;
 ...
 $prior_notices = [
@@ -33,34 +34,34 @@ $prior_notices = [
         ConditionalType::CATEGORY,
         1,
         5,
-        DateInterval::createFromDateString('1 month')
+        CarbonInterval::make('1 month')
     ),
     new ConditionalPeriod(
         ConditionalType::CATEGORY,
         6,
         7,
-        DateInterval::createFromDateString('2 months')
+        CarbonInterval::make('2 months')
     ),
     new ConditionalPeriod(
         ConditionalType::CATEGORY,
         8,
         12,
-        DateInterval::createFromDateString('3 months')
+        CarbonInterval::make('3 months')
     ),
 ];
 
 $trial_periods = [
     new ConditionalPeriod(
         ConditionalType::DURATION,
-        DateInterval::createFromDateString(0),
-        DateInterval::createFromDateString('6 months'),
-        DateInterval::createFromDateString('15 days')
+        CarbonInterval::make(0),
+        CarbonInterval::make('6 months'),
+        CarbonInterval::make('15 days')
     ),
     new ConditionalPeriod(
         ConditionalType::DURATION,
-        DateInterval::createFromDateString('6 months'),
-        DateInterval::createFromDateString('99 years'), // Equivalent to +∞
-        DateInterval::createFromDateString('1 month')
+        CarbonInterval::make('6 months'),
+        CarbonInterval::make('99 years'), // Equivalent to +∞
+        CarbonInterval::make('1 month')
     ),
 ];
 ```
@@ -85,12 +86,13 @@ $trial_periods = [
 
 ### Miscellaneous
 
-You may of may not have noticed it, but every `DateInterval` argument can be replaced by either its [`ISO8601` duration spec](https://en.wikipedia.org/wiki/ISO_8601#Durations) (the same way you can [instanciate a `DateInteval`](http://php.net/dateinterval.construct), or a relative date string (as you can [`DateInterval::createFromDateString`](http://php.net/dateinterval.createfromdatestring).
+You may of may not have noticed it, but every `CarbonInterval` argument can be replaced by either its [`ISO8601` duration spec](https://en.wikipedia.org/wiki/ISO_8601#Durations) (the same way you can [instanciate a `DateInterval`](http://php.net/dateinterval.construct), or a relative date string (as you can with `CarbonInterval`.
 
-So, here are the 3 same ways to input a `DateInterval` using `ConditionalPeriod` constructor:
+So, here are the 5 same ways to input a `Carboninterval` using `ConditionalPeriod` constructor:
 
-- `DateInterval::createFromDateString('1 year, 2 months, 3 days')`
-- `new DateInterval('P1Y2M3D');`
+- `Carboninterval::createFromDateString('1 year, 2 months, 3 days')`
+- `Carboninterval::make('P1Y2M3D');`
+- `new Carboninterval('P1Y2M3D');`
 - `'1 year, 2 months, 3 days'`
 - `'P1Y2M3D'`
 
