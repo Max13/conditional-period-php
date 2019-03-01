@@ -42,29 +42,38 @@ class ConditionalPeriod implements Serializable
     protected $result;
 
     /**
-     * Construct the ConditionalPeriod
+     * Check type value given, returns it transformed if needed
      *
-     * @param  MX\ConditionalType               $type   One of MX\ConditionalType consts
-     * @param  Carbon\CarbonInterval|string|int $lower  Lower boundary of the condition interval as:
-     *                                                      - as Carbon\CarbonInterval
-     *                                                      - as string, used to construct an Carbon\CarbonInterval
-     *                                                      - int, for conditions based on category
-     * @param  Carbon\CarbonInterval|string|int $upper  Upper boundary, included. Same as $lower
-     * @param  Carbon\CarbonInterval|string     $result Result of the condition as:
-     *                                                      - as Carbon\CarbonInterval
-     *                                                      - as string, used to construct an Carbon\CarbonInterval
+     * @param  MX\ConditionalType $type
+     * @return MX\ConditionalType
      *
-     * @throws InvalidArgumentException                 The argument couldn't be parsed
+     * @throws InvalidArgumentException
      */
-    public function __construct($type, $lower, $upper, $result)
+    protected function checkTypeArgument($type)
     {
         if (!in_array($type, [ConditionalType::CATEGORY, ConditionalType::DURATION], true)) {
             throw new InvalidArgumentException('The argument $type must be one of the ConditionalPeriod types (ConditionalType::CATEGORY or ConditionalType::DURATION). Input was: ('.gettype($type).')');
         }
-        $this->type = $type;
 
-        if ($type === ConditionalType::CATEGORY) {
-            if (gettype($lower) !== 'integer' || $lower < 1) {
+        return $type;
+    }
+
+    /**
+     * Check lower value given, returns it transformed if needed
+     *
+     * @param  Carbon\CarbonInterval|string|int $lower  Lower boundary of the condition interval as:
+     *                                                      - as Carbon\CarbonInterval
+     *                                                      - as string, used to construct a
+     *                                                        Carbon\CarbonInterval
+     *                                                      - int, for conditions based on category
+     * @return Carbon\CarbonInterval|int
+     *
+     * @throws InvalidArgumentException
+     */
+    protected function checkLowerArgument($lower)
+    {
+        if ($this->type === ConditionalType::CATEGORY) {
+            if (!is_int($lower) || $lower <= 0) {
                 throw new InvalidArgumentException('The argument $lower must be a valid category (Non null, positive integer). Input was: ('.gettype($lower).')');
             }
         } else {
@@ -73,10 +82,26 @@ class ConditionalPeriod implements Serializable
             }
             $lower = $lower instanceof CarbonInterval ? $lower : CarbonInterval::make($lower);
         }
-        $this->lower = $lower;
 
-        if ($type === ConditionalType::CATEGORY) {
-            if (gettype($upper) !== 'integer' || $upper < 1) {
+        return $lower;
+    }
+
+    /**
+     * Check upper value given, returns it transformed if needed
+     *
+     * @param  Carbon\CarbonInterval|string|int $upper  Upper boundary of the condition interval as:
+     *                                                      - as Carbon\CarbonInterval
+     *                                                      - as string, used to construct a
+     *                                                        Carbon\CarbonInterval
+     *                                                      - int, for conditions based on category
+     * @return Carbon\CarbonInterval|int
+     *
+     * @throws InvalidArgumentException
+     */
+    protected function checkUpperArgument($upper)
+    {
+        if ($this->type === ConditionalType::CATEGORY) {
+            if (!is_int($upper) || $upper <= 0) {
                 throw new InvalidArgumentException('The argument $upper must be a valid category (Non null, positive integer). Input was: ('.gettype($upper).')');
             }
         } else {
@@ -85,33 +110,60 @@ class ConditionalPeriod implements Serializable
             }
             $upper = $upper instanceof CarbonInterval ? $upper : CarbonInterval::make($upper);
         }
+
         if (
-            ($type === ConditionalType::CATEGORY && $upper < $this->lower)
-            || ($type === ConditionalType::DURATION && $upper->compare($this->lower) < 0)
+            ($this->type === ConditionalType::CATEGORY && $upper < $this->lower)
+            || ($this->type === ConditionalType::DURATION && $upper->compare($this->lower) < 0)
         ) {
             throw new InvalidArgumentException('The argument $upper must be a greater than or equal to $lower). $lower was ('.$this->lower.') and $upper was ('.$upper.')');
         }
-        $this->upper = $upper;
 
-        if (!($result instanceof CarbonInterval) && !is_string($result)) {
-            throw new InvalidArgumentException('The argument $result must be a valid Carbon\CarbonInterval, or a string used to construct an Carbon\CarbonInterval. Input was: ('.gettype($result).')');
-        }
-        $this->result = $result instanceof CarbonInterval ? $result : CarbonInterval::make($result);
+        return $upper;
     }
 
     /**
-     * Parse string format of this class
+     * Check result value given, returns it transformed if needed
      *
-     * @param  string               $short_format String format of the class
-     * @return MX\ConditionalPeriod
+     * @param  Carbon\CarbonInterval|string $result  Result of the condition as:
+     *                                                   - as Carbon\CarbonInterval
+     *                                                   - as string, used to construct a
+     *                                                     Carbon\CarbonInterval
+     * @return Carbon\CarbonInterval
      *
      * @throws InvalidArgumentException
      */
-    public static function parse($short_format)
+    protected function checkResultArgument($result)
     {
-        $arguments = self::parseToArray($short_format);
+        if (!($result instanceof CarbonInterval) && !is_string($result)) {
+            throw new InvalidArgumentException('The argument $result must be a valid Carbon\CarbonInterval, or a string used to construct an Carbon\CarbonInterval. Input was: ('.gettype($result).')');
+        }
 
-        return new self(...$arguments);
+        return $result instanceof CarbonInterval ? $result : CarbonInterval::make($result);
+    }
+
+    /**
+     * Construct the ConditionalPeriod
+     *
+     * @param  MX\ConditionalType               $type   One of MX\ConditionalType consts
+     * @param  Carbon\CarbonInterval|string|int $lower  Lower boundary of the condition interval as:
+     *                                                      - as Carbon\CarbonInterval
+     *                                                      - as string, used to construct a
+     *                                                        Carbon\CarbonInterval
+     *                                                      - int, for conditions based on category
+     * @param  Carbon\CarbonInterval|string|int $upper  Upper boundary, included. Same as $lower
+     * @param  Carbon\CarbonInterval|string     $result Result of the condition as:
+     *                                                      - as Carbon\CarbonInterval
+     *                                                      - as string, used to construct a
+     *                                                        Carbon\CarbonInterval
+     *
+     * @throws InvalidArgumentException                 The argument couldn't be parsed
+     */
+    public function __construct($type, $lower, $upper, $result)
+    {
+        $this->type = $this->checkTypeArgument($type);
+        $this->lower = $this->checkLowerArgument($lower);
+        $this->upper = $this->checkUpperArgument($upper);
+        $this->result = $this->checkResultArgument($result);
     }
 
     /**
@@ -155,6 +207,21 @@ class ConditionalPeriod implements Serializable
         $arguments[] = substr($str, $c);
 
         return $arguments;
+    }
+
+    /**
+     * Parse string format of this class
+     *
+     * @param  string               $short_format String format of the class
+     * @return MX\ConditionalPeriod
+     *
+     * @throws InvalidArgumentException
+     */
+    public static function parse($short_format)
+    {
+        $arguments = self::parseToArray($short_format);
+
+        return new self(...$arguments);
     }
 
     /**
