@@ -2,7 +2,7 @@
 
 namespace MX;
 
-use DateInterval;
+use Carbon\CarbonInterval;
 use Exception;
 use InvalidArgumentException;
 use Serializable;
@@ -19,7 +19,7 @@ class ConditionalPeriod implements Serializable
     /**
      * Lower boundary of the condition interval
      *
-     * @var int|DateInteval
+     * @var int|Carbon\CarbonInterval
      */
     protected $lower;
 
@@ -29,39 +29,42 @@ class ConditionalPeriod implements Serializable
      * The upper boundary ends just before its value "+1".
      * For instance, "to 6 days", means "to 7 days - 1 second"
      *
-     * @var int|DateInterval
+     * @var int|Carbon\CarbonInterval
      */
     protected $upper;
 
     /**
      * Result of the condition
      *
-     * @var DateInterval
+     * @var Carbon\CarbonInterval
      */
     protected $result;
 
     /**
      * Construct the ConditionalPeriod
      *
-     * @param MX\ConditionalType|string $type   One of the ConditionalType consts
-     *                                          Also accepts ConditionalPeriod as string,
-     *                                          when the constructor is used with 1 argument
-     * @param DateInterval|string|int   $lower  Lower boundary of the condition interval as:
-     *                                          - int, for condition based on category
-     *                                          - as DateInterval
-     *                                          - as iso8601 interval specification
-     *                                          - as relative date string
-     * @param DateInterval|string|int   $upper  Upper boundary of the condition interval as:
-     *                                          see $lower, must be greater than or equal to $lower
-     * @param DateInterval|string       $result Result of the condition as:
-     *                                          see $lower, except int.
+     * @param  MX\ConditionalType               $type   One of MX\ConditionalType consts.
+     *                                                  Also accepts ConditionalPeriod as string,
+     *                                                  when the constructor is used with 1 argument
+     * @param  Carbon\CarbonInterval|string|int $lower  Lower boundary of the condition interval as:
+     *                                                      - as Carbon\CarbonInterval
+     *                                                      - as string, used to construct an Carbon\CarbonInterval
+     *                                                      - int, for conditions based on category
+     * @param  Carbon\CarbonInterval|string|int $upper  Upper boundary, included. Same as $lower
+     * @param  Carbon\CarbonInterval|string     $result Result of the condition as:
+     *                                                      - as Carbon\CarbonInterval
+     *                                                      - as string, used to construct an Carbon\CarbonInterval
      *
-     * @throws InvalidArgumentException         The argument couldn't be parsed
+     * @throws InvalidArgumentException                 The argument couldn't be parsed
      */
     public function __construct($type, $lower = null, $upper = null, $result = null)
     {
         if (strlen($type) > 1) {
-            list($type, $lower, $upper, $result) = self::parseStringFormat($type);
+            $parts = self::parseStringFormat($type);
+            $type = $parts[0];
+            $lower = $parts[1];
+            $upper = $parts[2];
+            $result = $parts[3];
         }
 
         if (!in_array($type, [ConditionalType::CATEGORY, ConditionalType::DURATION], true)) {
@@ -69,52 +72,40 @@ class ConditionalPeriod implements Serializable
         }
         $this->type = $type;
 
-        if ($type === ConditionalType::CATEGORY && (gettype($lower) !== 'integer' || $lower < 1)) {
-            throw new InvalidArgumentException('The argument $lower must be a valid category (Non null, positive integer). Input was: ('.gettype($lower).')');
-        } elseif ($type === ConditionalType::DURATION && !($lower instanceof DateInterval)) {
-            if (is_string($lower)) {
-                if ($lower[0] == 'P') {
-                    $lower = new DateInterval($lower);
-                } else {
-                    $lower = DateInterval::createFromDateString($lower);
-                }
-            } else {
-                throw new InvalidArgumentException('The argument $lower must be a valid DateInterval, an iso8601 interval specification string or a relative date string. Input was: ('.gettype($lower).')');
+        if ($type === ConditionalType::CATEGORY) {
+            if (gettype($lower) !== 'integer' || $lower < 1) {
+                throw new InvalidArgumentException('The argument $lower must be a valid category (Non null, positive integer). Input was: ('.gettype($lower).')');
             }
+        } else {
+            if (!($lower instanceof CarbonInterval) && !is_string($lower)) {
+                throw new InvalidArgumentException('The argument $lower must be a valid Carbon\CarbonInterval, or a string used to construct an Carbon\CarbonInterval. Input was: ('.gettype($lower).')');
+            }
+            $lower = $lower instanceof CarbonInterval ? $lower : CarbonInterval::make($lower);
         }
         $this->lower = $lower;
 
-        if ($type === ConditionalType::CATEGORY && (gettype($upper) !== 'integer' || $upper < 1)) {
-            throw new InvalidArgumentException('The argument $upper must be a valid category (Non null, positive integer). Input was: ('.gettype($upper).')');
-        } elseif ($type === ConditionalType::DURATION && !($upper instanceof DateInterval)) {
-            if (is_string($upper)) {
-                if ($upper[0] == 'P') {
-                    $upper = new DateInterval($upper);
-                } else {
-                    $upper = DateInterval::createFromDateString($upper);
-                }
-            } else {
-                throw new InvalidArgumentException('The argument $upper must be a valid DateInterval, an iso8601 interval specification string or a relative date string. Input was: ('.gettype($upper).')');
+        if ($type === ConditionalType::CATEGORY) {
+            if (gettype($upper) !== 'integer' || $upper < 1) {
+                throw new InvalidArgumentException('The argument $upper must be a valid category (Non null, positive integer). Input was: ('.gettype($upper).')');
             }
+        } else {
+            if (!($upper instanceof CarbonInterval) && !is_string($upper)) {
+                throw new InvalidArgumentException('The argument $upper must be a valid Carbon\CarbonInterval, or a string used to construct an Carbon\CarbonInterval. Input was: ('.gettype($upper).')');
+            }
+            $upper = $upper instanceof CarbonInterval ? $upper : CarbonInterval::make($upper);
         }
         if (
-            ($type === ConditionalType::CATEGORY && $upper < $lower)
-            || ($type === ConditionalType::DURATION && date_create('2019-01-01')->add($upper) < date_create('2019-01-01')->add($lower))
+            ($type === ConditionalType::CATEGORY && $upper < $this->lower)
+            || ($type === ConditionalType::DURATION && $upper->compare($this->lower) < 0)
         ) {
-            throw new InvalidArgumentException('The argument $upper must be a greater than or equal to $lower). Input was: ('.gettype($upper).')');
+            throw new InvalidArgumentException('The argument $upper must be a greater than or equal to $lower). $lower was ('.$this->lower.') and $upper was ('.$upper.')');
         }
         $this->upper = $upper;
 
-        if (is_string($result)) {
-            if ($result[0] == 'P') {
-                $result = new DateInterval($result);
-            } else {
-                $result = DateInterval::createFromDateString($result);
-            }
-        } elseif (!($result instanceof DateInterval)) {
-            throw new InvalidArgumentException('The argument $result must be a valid DateInterval, an iso8601 interval specification string or a relative date string. Input was: ('.gettype($result).') '.$result);
+        if (!($result instanceof CarbonInterval) && !is_string($result)) {
+            throw new InvalidArgumentException('The argument $result must be a valid Carbon\CarbonInterval, or a string used to construct an Carbon\CarbonInterval. Input was: ('.gettype($result).')');
         }
-        $this->result = $result;
+        $this->result = $result instanceof CarbonInterval ? $result : CarbonInterval::make($result);
     }
 
     /**
@@ -170,9 +161,9 @@ class ConditionalPeriod implements Serializable
     /**
      * Lower boundary accessor
      * - int, if type is CATEGORY
-     * - DateInterval, if type is DURATION
+     * - Carbon\CarbonInterval, if type is DURATION
      *
-     * @return int|DateInterval
+     * @return int|Carbon\CarbonInterval
      */
     public function lower()
     {
@@ -182,9 +173,9 @@ class ConditionalPeriod implements Serializable
     /**
      * Upper boundary accessor
      * - int, if type is CATEGORY
-     * - DateInterval, if type is DURATION
+     * - Carbon\CarbonInterval, if type is DURATION
      *
-     * @return int|DateInterval
+     * @return int|Carbon\CarbonInterval
      */
     public function upper()
     {
@@ -194,53 +185,11 @@ class ConditionalPeriod implements Serializable
     /**
      * Result of the condition
      *
-     * @return DateInterval
+     * @return Carbon\CarbonInterval
      */
     public function result()
     {
         return $this->result;
-    }
-
-    /**
-     * Stringify a DateInterval as Iso8601 format
-     *
-     * @param  DateInterval $interval [description]
-     * @return string
-     *
-     * @url http://php.net/manual/en/dateinterval.construct.php#119260
-     */
-    protected static function toIso8601(DateInterval $interval)
-    {
-        $date = null;
-        if ($interval->y) {
-            $date .= $interval->y . 'Y';
-        }
-        if ($interval->m) {
-            $date .= $interval->m . 'M';
-        }
-        if ($interval->d) {
-            $date .= $interval->d . 'D';
-        }
-
-        $time = null;
-        if ($interval->h) {
-            $time .= $interval->h . 'H';
-        }
-        if ($interval->i) {
-            $time .= $interval->i . 'M';
-        }
-        if ($interval->s) {
-            $time .= $interval->s . 'S';
-        }
-        if ($time) {
-            $time = 'T' . $time;
-        }
-
-        $text = 'P' . $date . $time;
-        if ($text == 'P') {
-            return 'PT0S';
-        }
-        return $text;
     }
 
     /**
@@ -250,17 +199,12 @@ class ConditionalPeriod implements Serializable
      */
     public function toString()
     {
-        $iso8601 = "$this->type";
+        $str  = $this->type;
+        $str .= $this->lower instanceof CarbonInterval ? $this->lower->spec() : $this->lower.'-';
+        $str .= $this->upper instanceof CarbonInterval ? $this->upper->spec() : $this->upper;
+        $str .= $this->result->spec();
 
-        if ($this->type === ConditionalType::CATEGORY) {
-            $iso8601 .= "$this->lower-$this->upper";
-        } else {
-            $iso8601 .= self::toIso8601($this->lower).self::toIso8601($this->upper);
-        }
-
-        $iso8601 .= self::toIso8601($this->result);
-
-        return $iso8601;
+        return $str;
     }
 
     /**

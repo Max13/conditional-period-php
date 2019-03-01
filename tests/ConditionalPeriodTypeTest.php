@@ -1,12 +1,12 @@
 <?php
 
-namespace MX\Tests;
+namespace MX\Tests\ConditionalPeriod;
 
-use MX\ConditionalPeriod;
-use MX\ConditionalType;
-use DateInterval;
+use Carbon\CarbonInterval;
 use Exception;
 use InvalidArgumentException;
+use MX\ConditionalPeriod;
+use MX\ConditionalType;
 use PHPUnit\Framework\TestCase;
 
 class ConditionalPeriodTypeTest extends TestCase
@@ -14,7 +14,7 @@ class ConditionalPeriodTypeTest extends TestCase
     public function testFailConstructor()
     {
         $exceptionMessage = 'The argument $type must be one of the ConditionalPeriod types';
-        $result = new DateInterval('P1D');
+        $result = new CarbonInterval('P1D');
         $cp = null;
 
         try {

@@ -19,13 +19,16 @@
         "phpunit/phpunit": "*"
     },
     "autoload": {
-        "classmap": [
-            "src/"
-        ]
+        "psr-4" : {
+            "MX\\" : "src/"
+        }
     },
     "autoload-dev": {
         "classmap": [
             "tests/"
         ]
+    },
+    "require": {
+        "nesbot/carbon": "^1.36"
     }
 }
