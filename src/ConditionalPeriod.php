@@ -8,6 +8,12 @@ use InvalidArgumentException;
 use Serializable;
 use TypeError;
 
+/**
+ * This class is used to represent a business logic:
+ * A result Carbon\CarbonInterval based on an interval condition:
+ * - Between 2 categories (as int)
+ * - Between 2 durations (as Carbon\CarbonInterval)
+ */
 class ConditionalPeriod implements Serializable
 {
     /**
