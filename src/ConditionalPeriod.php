@@ -197,7 +197,7 @@ class ConditionalPeriod implements Serializable
                 $arg = substr($str, $c, $p - $c);
                 $c = $p;
             } else {
-                throw new InvalidArgumentException("Invalid string format: Can't find argument #${i + 1}. Given: $str");
+                throw new InvalidArgumentException("Invalid string format: Can't find argument #".($i + 1).". Given: $str");
             }
 
             if (is_numeric($arg)) {
