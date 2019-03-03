@@ -112,8 +112,10 @@ So, here are the 5 same ways to input a `Carboninterval` using `ConditionalPerio
 - `'1 year, 2 months, 3 days'`
 - `'P1Y2M3D'`
 
-And there are 3 ways to create a `ConditionalCollection`:
+And there are 5 ways to create a `ConditionalCollection`:
 
+- `ConditionalCollection::create(new ConditionalPeriod(…))`, which instanciates it and sets its first value (); // Or ConditionalPeriod string form
+- `new ConditionalCollection`, then push to it: `c->push(new ConditionalPeriod(…)); // or ConditionalPeriod string form`
 - `new ConditionalCollection`, then treat it as an array: `$c[] = new ConditionalPeriod(…); // or ConditionalPeriod string form`
 - `ConditionalCollection::parse(…)`, which takes its own `toString()` form
 - `ConditionalCollection::fromArray(…)`, which takes an array of `ConditionalPeriod` or its string form
