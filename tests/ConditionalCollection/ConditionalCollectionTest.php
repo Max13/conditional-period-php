@@ -205,6 +205,98 @@ class ConditionalPeriodByCategoryTest extends TestCase
         $this->assertEquals($c2, $c[2]);
     }
 
+    public function testPushInvalidValues()
+    {
+        $exceptionMessage = 'Only MX\ConditionalPeriod (as object or string form) can be stored';
+        $c = new ConditionalCollection;
+
+        try {
+            $c->push(null);
+        } catch (Exception $e) {
+            $this->assertInstanceOf(InvalidArgumentException::class, $e);
+            $this->assertStringStartsWith($exceptionMessage, $e->getMessage());
+        }
+        $this->assertCount(0, $c);
+
+        try {
+            $c->push(0);
+        } catch (Exception $e) {
+            $this->assertInstanceOf(InvalidArgumentException::class, $e);
+            $this->assertStringStartsWith($exceptionMessage, $e->getMessage());
+        }
+        $this->assertCount(0, $c);
+
+        try {
+            $c->push(1);
+        } catch (Exception $e) {
+            $this->assertInstanceOf(InvalidArgumentException::class, $e);
+            $this->assertStringStartsWith($exceptionMessage, $e->getMessage());
+        }
+        $this->assertCount(0, $c);
+    }
+
+    public function testPushValidCategoryValues()
+    {
+        $arr = [
+            new ConditionalPeriod(
+                ConditionalType::CATEGORY,
+                1,
+                3,
+                new CarbonInterval('P3D')
+            ),
+            'C4-6P6D',
+            new ConditionalPeriod(
+                ConditionalType::CATEGORY,
+                7,
+                10,
+                'P9D'
+            ),
+        ];
+
+        $c = new ConditionalCollection;
+
+        $this->assertEquals($c, $c->push($arr[2]));
+        $this->assertCount(1, $c);
+        $this->assertEquals($arr[2], $c[0]);
+
+        $this->assertEquals($arr[0], $c->push($arr[0], 0)[0]);
+        $this->assertCount(2, $c);
+
+        $this->assertEquals($arr[1], $c->push($arr[1], 1)[1]);
+        $this->assertCount(3, $c);
+    }
+
+    public function testPushValidDurationValues()
+    {
+        $arr = [
+            new ConditionalPeriod(
+                ConditionalType::DURATION,
+                CarbonInterval::make('P1D'),
+                CarbonInterval::make('P3D'),
+                new CarbonInterval('P3D')
+            ),
+            'DP4DP6DP6D',
+            new ConditionalPeriod(
+                ConditionalType::DURATION,
+                'P7D',
+                'P10D',
+                'P9D'
+            ),
+        ];
+
+        $c = new ConditionalCollection;
+
+        $this->assertEquals($c, $c->push($arr[2]));
+        $this->assertCount(1, $c);
+        $this->assertEquals($arr[2], $c[0]);
+
+        $this->assertEquals($arr[0], $c->push($arr[0], 0)[0]);
+        $this->assertCount(2, $c);
+
+        $this->assertEquals($arr[1], $c->push($arr[1], 1)[1]);
+        $this->assertCount(3, $c);
+    }
+
     public function testFindWithInvalidValues()
     {
         $c = new ConditionalCollection;

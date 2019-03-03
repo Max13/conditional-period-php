@@ -98,6 +98,41 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
     }
 
     /**
+     * Push a given MX\ConditionalPeriod in the container, at given index or last
+     * and returns $this.
+     *
+     * @param  MX\ConditionalPeriod|string $value  Value to push as:
+     *                                                 - as MX\ConditionalPeriod
+     *                                                 - as string, used to construct a
+     *                                                   MX\ConditionalPeriod
+     * @param  int|null                    $offset Index, or null to push at the end
+     *
+     * @return MX\ConditionalCollection
+     *
+     * @throws InvalidArgumentException
+     */
+    public function push($value, $offset = null)
+    {
+        if (is_string($value)) {
+            $value = ConditionalPeriod::parse($value);
+        } elseif (!($value instanceof ConditionalPeriod)) {
+            throw new InvalidArgumentException('Only MX\ConditionalPeriod (as object or string form) can be stored. Given: '.gettype($value));
+        }
+
+        if (count($this->container) && $value->type() !== $this->container[0]->type()) {
+            throw new InvalidArgumentException('The MX\ConditionalPeriod set must have the same type as all the periods stored. Given: '.($value->type() === ConditionalType::CATEGORY ? 'ConditionalType::CATEGORY' : 'ConditionalType::DURATION'));
+        }
+
+        if (is_null($offset)) {
+            $this->container[] = $value;
+        } else {
+            array_splice($this->container, $offset, 0, [$value]);
+        }
+
+        return $this;
+    }
+
+    /**
      * Find the MX\ConditionalPeriod matching the given value
      * and returns the matched one, or null if none matched.
      *
@@ -168,21 +203,7 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
      */
     public function offsetSet($offset, $value)
     {
-        if (is_string($value)) {
-            $value = ConditionalPeriod::parse($value);
-        } elseif (!($value instanceof ConditionalPeriod)) {
-            throw new InvalidArgumentException('Only MX\ConditionalPeriod (as object or string form) can be stored. Given: '.gettype($value));
-        }
-
-        if (count($this->container) && $value->type() != $this->container[0]->type()) {
-            throw new InvalidArgumentException('The MX\ConditionalPeriod set must have the same type as all the periods stored. Given: '.($value->type() === ConditionalType::CATEGORY ? 'ConditionalType::CATEGORY' : 'ConditionalType::DURATION'));
-        }
-
-        if (is_null($offset)) {
-            $this->container[] = $value;
-        } else {
-            $this->container[$offset] = $value;
-        }
+        $this->push($value, $offset);
     }
 
     /**
