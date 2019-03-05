@@ -9,6 +9,7 @@ use MX\ConditionalCollection;
 use MX\ConditionalPeriod;
 use MX\ConditionalType;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 class ConditionalPeriodByCategoryTest extends TestCase
 {
@@ -150,22 +151,6 @@ class ConditionalPeriodByCategoryTest extends TestCase
         $this->assertEquals($c2, $c[2]);
     }
 
-    public function testFromArrayWithInvalidValues()
-    {
-        foreach (
-            [-1, 0, 1, null, new CarbonInterval, ConditionalPeriod::parse('DP1DP2DP3D')]
-            as $val
-        ) {
-            try {
-                $collection = ConditionalCollection::fromArray($val);
-            } catch (Exception $e) {
-                $this->assertInstanceOf(InvalidArgumentException::class, $e);
-                $this->assertStringStartsWith('First argument of fromArray() must be an array', $e->getMessage());
-            }
-            $this->assertNull($collection, 'Constructed with '.strval($val));
-        }
-    }
-
     public function testFromArrayWithArrayElements()
     {
         foreach ([[-1], [0], [1], [null], [new CarbonInterval]] as $val) {
@@ -203,6 +188,49 @@ class ConditionalPeriodByCategoryTest extends TestCase
         $this->assertEquals($c0, $c[0]);
         $this->assertEquals(ConditionalPeriod::parse($c1), $c[1]);
         $this->assertEquals($c2, $c[2]);
+    }
+
+    public function testFromJsonWithArrayElements()
+    {
+        foreach ([-1, 0, 1, null, new CarbonInterval] as $val) {
+            try {
+                $collection = ConditionalCollection::fromJson($val);
+            } catch (TypeError $e) {
+                $this->assertInstanceOf(TypeError::class, $e);
+            }
+            $this->assertNull($collection, 'Constructed with '.strval($val));
+        }
+    }
+
+    public function testFromJsonWithValidArrayElements()
+    {
+        $json = '["C1-3P3D","C4-6P6D","C7-10P9D"]';
+        $jsonC = ConditionalCollection::fromArray([
+            new ConditionalPeriod(
+                ConditionalType::CATEGORY,
+                1,
+                3,
+                new CarbonInterval('P3D')
+            ),
+            new ConditionalPeriod(
+                ConditionalType::CATEGORY,
+                4,
+                6,
+                new CarbonInterval('P6D')
+            ),
+            new ConditionalPeriod(
+                ConditionalType::CATEGORY,
+                7,
+                10,
+                new CarbonInterval('P9D')
+            ),
+        ]);
+
+        $c = ConditionalCollection::fromJson($json);
+
+        $this->assertInstanceOf(ConditionalCollection::class, $c);
+        $this->assertCount(3, $c);
+        $this->assertEquals($jsonC, $c);
     }
 
     public function testPushInvalidValues()
@@ -424,6 +452,134 @@ class ConditionalPeriodByCategoryTest extends TestCase
         $this->assertEquals($cp3, $c->find('P9D'));
         $this->assertEquals($cp3, $c->find('P10D'));
         $this->assertNull($c->find('P11D'));
+    }
+
+    public function testToArrayByCategory()
+    {
+        $c0 = new ConditionalPeriod(
+            ConditionalType::CATEGORY,
+            1,
+            3,
+            new CarbonInterval('P3D')
+        );
+        $c1 = new ConditionalPeriod(
+            ConditionalType::CATEGORY,
+            4,
+            6,
+            new CarbonInterval('P6D')
+        );
+        $c2 = new ConditionalPeriod(
+            ConditionalType::CATEGORY,
+            7,
+            10,
+            new CarbonInterval('P9D')
+        );
+        $cArray = [
+            $c0,
+            $c1,
+            $c2,
+        ];
+
+        $c = new ConditionalCollection;
+        $c[] = $c0;
+        $c[] = $c1;
+        $c[] = $c2;
+
+        $this->assertEquals($cArray, $c->toArray());
+    }
+
+    public function testToArrayByDuration()
+    {
+        $c0 = new ConditionalPeriod(
+            ConditionalType::DURATION,
+            new CarbonInterval('P2D'),
+            new CarbonInterval('P4D'),
+            new CarbonInterval('P3M')
+        );
+        $c1 = new ConditionalPeriod(
+            ConditionalType::DURATION,
+            new CarbonInterval('P5D'),
+            new CarbonInterval('P7D'),
+            new CarbonInterval('P6M')
+        );
+        $c2 = new ConditionalPeriod(
+            ConditionalType::DURATION,
+            new CarbonInterval('P8D'),
+            new CarbonInterval('P10D'),
+            new CarbonInterval('P9M')
+        );
+        $cArray = [
+            $c0,
+            $c1,
+            $c2
+        ];
+
+        $c = new ConditionalCollection;
+        $c[] = $c0;
+        $c[] = $c1;
+        $c[] = $c2;
+
+        $this->assertEquals([$c0, $c1, $c2], $c->toArray());
+    }
+
+    public function testToJsonByCategory()
+    {
+        $c0 = new ConditionalPeriod(
+            ConditionalType::CATEGORY,
+            1,
+            3,
+            new CarbonInterval('P3D')
+        );
+        $c1 = new ConditionalPeriod(
+            ConditionalType::CATEGORY,
+            4,
+            6,
+            new CarbonInterval('P6D')
+        );
+        $c2 = new ConditionalPeriod(
+            ConditionalType::CATEGORY,
+            7,
+            10,
+            new CarbonInterval('P9D')
+        );
+        $cJson = '["C1-3P3D","C4-6P6D","C7-10P9D"]';
+
+        $c = new ConditionalCollection;
+        $c[] = $c0;
+        $c[] = $c1;
+        $c[] = $c2;
+
+        $this->assertEquals($cJson, $c->toJson());
+    }
+
+    public function testToJsonByDuration()
+    {
+        $c0 = new ConditionalPeriod(
+            ConditionalType::DURATION,
+            new CarbonInterval('P2D'),
+            new CarbonInterval('P4D'),
+            new CarbonInterval('P3M')
+        );
+        $c1 = new ConditionalPeriod(
+            ConditionalType::DURATION,
+            new CarbonInterval('P5D'),
+            new CarbonInterval('P7D'),
+            new CarbonInterval('P6M')
+        );
+        $c2 = new ConditionalPeriod(
+            ConditionalType::DURATION,
+            new CarbonInterval('P8D'),
+            new CarbonInterval('P10D'),
+            new CarbonInterval('P9M')
+        );
+        $cJson = '["DP2DP4DP3M","DP5DP7DP6M","DP8DP10DP9M"]';
+
+        $c = new ConditionalCollection;
+        $c[] = $c0;
+        $c[] = $c1;
+        $c[] = $c2;
+
+        $this->assertEquals($cJson, $c->toJson());
     }
 
     public function testToStringByCategory()

@@ -6,13 +6,14 @@ use ArrayAccess;
 use Countable;
 use Carbon\CarbonInterval;
 use InvalidArgumentException;
+use JsonSerializable;
 use Serializable;
 
 /**
  * This class stores an array of ConditionalPeriod, allowing the user
  * to find() which ConditionalPeriod matches a given value.
  */
-class ConditionalCollection implements ArrayAccess, Countable, Serializable
+class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable, Serializable
 {
     /**
      * Array of MX\ConditionalPeriod
@@ -99,6 +100,19 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
     }
 
     /**
+     * Instanciate an MX\ConditionalCollection from an json string
+     *
+     * @param  string                   $json Json string
+     * @return MX\ConditionalCollection
+     *
+     * @throws InvalidArgumentException
+     */
+    public static function fromJson($json)
+    {
+        return self::fromArray(json_decode($json));
+    }
+
+    /**
      * Push a given MX\ConditionalPeriod in the container, at given index or last
      * and returns $this.
      *
@@ -164,6 +178,32 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
     }
 
     /**
+     * Arrayify this object
+     *
+     * @return array Array of ConditionalPeriod
+     */
+    public function toArray()
+    {
+        $array = [];
+
+        foreach ($this->container as $period) {
+            $array[] = $period->toString();
+        }
+
+        return $array;
+    }
+
+    /**
+     * Json serialize this object
+     *
+     * @return string Json form of the ConditionalCollection
+     */
+    public function toJson()
+    {
+        return json_encode($this);
+    }
+
+    /**
      * Stringify this object
      *
      * @return string String form of ConditionalCollection
@@ -223,6 +263,16 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
     public function count()
     {
         return count($this->container);
+    }
+
+    /**
+     * Expose the jsonable form of this object
+     *
+     * @return string
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
     }
 
     /**
