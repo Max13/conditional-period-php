@@ -70,11 +70,12 @@ class ConditionalCollection implements ArrayAccess, Countable, Serializable
     /**
      * Instanciate an MX\ConditionalCollection from an array of MX\ConditionalPeriod
      *
+     * @param  array                    $array Array of ConditionalPeriod (Object or string)
      * @return MX\ConditionalCollection
      *
      * @throws InvalidArgumentException
      */
-    public static function fromArray($array)
+    public static function fromArray(array $array)
     {
         if (!is_array($array)) {
             throw new InvalidArgumentException('First argument of fromArray() must be an array. '.gettype($array).' given.');
