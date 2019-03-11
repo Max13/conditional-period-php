@@ -78,10 +78,6 @@ class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable,
      */
     public static function fromArray(array $array)
     {
-        if (!is_array($array)) {
-            throw new InvalidArgumentException('First argument of fromArray() must be an array. '.gettype($array).' given.');
-        }
-
         $collection = new self;
 
         foreach ($array as $period) {
