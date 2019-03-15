@@ -105,7 +105,7 @@ class ConditionalPeriodByCategoryTest extends TestCase
         $type = ConditionalType::CATEGORY;
         $lower = 2;
         $result = new CarbonInterval('P1D');
-        $exceptionMessage = 'The argument $upper must be a valid category (Non null, positive integer)';
+        $exceptionMessage = 'The argument $upper must be a valid category (>= 0)';
         $cp = null;
 
         try {
@@ -118,14 +118,6 @@ class ConditionalPeriodByCategoryTest extends TestCase
 
         try {
             $cp = new ConditionalPeriod($type, $lower, -1, $result);
-        } catch (Exception $e) {
-            $this->assertInstanceOf(InvalidArgumentException::class, $e);
-            $this->assertStringStartsWith($exceptionMessage, $e->getMessage());
-        }
-        $this->assertNull($cp);
-
-        try {
-            $cp = new ConditionalPeriod($type, $lower, 0, $result);
         } catch (Exception $e) {
             $this->assertInstanceOf(InvalidArgumentException::class, $e);
             $this->assertStringStartsWith($exceptionMessage, $e->getMessage());
@@ -160,7 +152,7 @@ class ConditionalPeriodByCategoryTest extends TestCase
             $cp = new ConditionalPeriod($type, $lower, 1, $result);
         } catch (Exception $e) {
             $this->assertInstanceOf(InvalidArgumentException::class, $e);
-            $this->assertStringStartsWith('The argument $upper must be a greater than or equal to $lower)', $e->getMessage());
+            $this->assertStringStartsWith('The argument $upper must be a greater than or equal to $lower, or 0', $e->getMessage());
         }
         $this->assertNull($cp);
     }
@@ -169,6 +161,9 @@ class ConditionalPeriodByCategoryTest extends TestCase
     {
         $type = ConditionalType::CATEGORY;
         $result = new CarbonInterval('P1D');
+
+        $cp = new ConditionalPeriod($type, 1, 0, $result);
+        $this->assertEquals(0, $cp->upper());
 
         $cp = new ConditionalPeriod($type, 1, 1, $result);
         $this->assertEquals(1, $cp->upper());

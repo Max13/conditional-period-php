@@ -120,14 +120,6 @@ class ConditionalPeriodByDurationTest extends TestCase
         $this->assertNull($cp);
 
         try {
-            new ConditionalPeriod($type, $lower, 0, $result);
-        } catch (Exception $e) {
-            $this->assertInstanceOf(InvalidArgumentException::class, $e);
-            $this->assertStringStartsWith($exceptionMessage, $e->getMessage());
-        }
-        $this->assertNull($cp);
-
-        try {
             new ConditionalPeriod($type, $lower, 1, $result);
         } catch (Exception $e) {
             $this->assertInstanceOf(InvalidArgumentException::class, $e);
@@ -139,7 +131,7 @@ class ConditionalPeriodByDurationTest extends TestCase
             $cp = new ConditionalPeriod($type, $lower, new CarbonInterval('P1D'), $result);
         } catch (Exception $e) {
             $this->assertInstanceOf(InvalidArgumentException::class, $e);
-            $this->assertStringStartsWith('The argument $upper must be a greater than or equal to $lower)', $e->getMessage());
+            $this->assertStringStartsWith('The argument $upper must be a greater than or equal to $lower, or 0', $e->getMessage());
         }
         $this->assertNull($cp);
     }
@@ -150,6 +142,9 @@ class ConditionalPeriodByDurationTest extends TestCase
         $result = new CarbonInterval('P1D');
 
         // CarbonInterval
+        $cp = new ConditionalPeriod($type, new CarbonInterval('P1D'), new CarbonInterval('P0D'), $result);
+        $this->assertEquals(new CarbonInterval('P0D'), $cp->upper());
+
         $cp = new ConditionalPeriod($type, new CarbonInterval('P1D'), new CarbonInterval('P1D'), $result);
         $this->assertEquals(new CarbonInterval('P1D'), $cp->upper());
 
@@ -163,6 +158,9 @@ class ConditionalPeriodByDurationTest extends TestCase
         $this->assertEquals(new CarbonInterval('P4D'), $cp->upper());
 
         // iso8601 interval
+        $cp = new ConditionalPeriod($type, new CarbonInterval('P1D'), 'P0D', $result);
+        $this->assertEquals(new CarbonInterval('P0D'), $cp->upper());
+
         $cp = new ConditionalPeriod($type, new CarbonInterval('P1D'), 'P1D', $result);
         $this->assertEquals(new CarbonInterval('P1D'), $cp->upper());
 
@@ -176,6 +174,9 @@ class ConditionalPeriodByDurationTest extends TestCase
         $this->assertEquals(new CarbonInterval('P4D'), $cp->upper());
 
         // relative string
+        $cp = new ConditionalPeriod($type, new CarbonInterval('P1D'), '0 day', $result);
+        $this->assertEquals(new CarbonInterval('P0D'), $cp->upper());
+
         $cp = new ConditionalPeriod($type, new CarbonInterval('P1D'), '1 day', $result);
         $this->assertEquals(new CarbonInterval('P1D'), $cp->upper());
 

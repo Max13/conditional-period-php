@@ -107,8 +107,8 @@ class ConditionalPeriod implements Serializable
     protected function checkUpperArgument($upper)
     {
         if ($this->type === ConditionalType::CATEGORY) {
-            if (!is_int($upper) || $upper <= 0) {
-                throw new InvalidArgumentException('The argument $upper must be a valid category (Non null, positive integer). Input was: ('.gettype($upper).')');
+            if (!is_int($upper) || $upper < 0) {
+                throw new InvalidArgumentException('The argument $upper must be a valid category (>= 0). Input was: ('.gettype($upper).')');
             }
         } else {
             if (!($upper instanceof CarbonInterval) && !is_string($upper)) {
@@ -118,10 +118,18 @@ class ConditionalPeriod implements Serializable
         }
 
         if (
-            ($this->type === ConditionalType::CATEGORY && $upper < $this->lower)
-            || ($this->type === ConditionalType::DURATION && $upper->compare($this->lower) < 0)
+            (
+                $this->type === ConditionalType::CATEGORY
+                && $upper > 0
+                && $upper < $this->lower
+            )
+            || (
+                $this->type === ConditionalType::DURATION
+                && $upper->totalSeconds > 0
+                && $upper->compare($this->lower) < 0
+            )
         ) {
-            throw new InvalidArgumentException('The argument $upper must be a greater than or equal to $lower). $lower was ('.$this->lower.') and $upper was ('.$upper.')');
+            throw new InvalidArgumentException('The argument $upper must be a greater than or equal to $lower, or 0. $lower was ('.$this->lower.') and $upper was ('.$upper.')');
         }
 
         return $upper;
