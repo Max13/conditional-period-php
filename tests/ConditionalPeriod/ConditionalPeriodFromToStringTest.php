@@ -22,7 +22,7 @@ class ConditionalPeriodFromToStringTest extends TestCase
 
     public function testCategoryFromToSerialization()
     {
-        $cpString = 'C:20:"MX\ConditionalPeriod":14:{s:7:"C1-2P1Y";}';
+        $cpString = 'O:20:"MX\ConditionalPeriod":4:{i:0;s:1:"C";i:1;i:1;i:2;i:2;i:3;s:3:"P1Y";}';
         $cp = new ConditionalPeriod(ConditionalType::CATEGORY, 1, 2, new CarbonInterval('P1Y'));
 
         $this->assertEquals($cpString, serialize($cp));
@@ -40,7 +40,7 @@ class ConditionalPeriodFromToStringTest extends TestCase
 
     public function testDurationFromToSerialization()
     {
-        $cpString = 'C:20:"MX\ConditionalPeriod":33:{s:25:"DP1YP1Y2M3DP1Y2M3DT1H2M3S";}';
+        $cpString = 'O:20:"MX\ConditionalPeriod":4:{i:0;s:1:"D";i:1;s:3:"P1Y";i:2;s:7:"P1Y2M3D";i:3;s:14:"P1Y2M3DT1H2M3S";}';
         $cp = new ConditionalPeriod(ConditionalType::DURATION, new CarbonInterval('P1Y'), new CarbonInterval('P1Y2M3D'), new CarbonInterval('P1Y2M3DT1H2M3S'));
 
         $this->assertEquals($cpString, serialize($cp));

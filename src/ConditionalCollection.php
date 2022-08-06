@@ -105,7 +105,7 @@ class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable,
      */
     public static function fromJson($json)
     {
-        return self::fromArray(json_decode($json));
+        return self::fromArray(json_decode($json ?: ''));
     }
 
     /**
@@ -222,7 +222,7 @@ class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable,
     /**
      * @inherit
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset) : bool
     {
         return isset($this->container[$offset]);
     }
@@ -230,7 +230,7 @@ class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable,
     /**
      * @inherit
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset) : mixed
     {
         return $this->container[$offset];
     }
@@ -238,7 +238,7 @@ class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable,
     /**
      * @inherit
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value) : void
     {
         $this->push($value, $offset);
     }
@@ -246,7 +246,7 @@ class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable,
     /**
      * @inherit
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset) : void
     {
         unset($this->container[$offset]);
     }
@@ -256,7 +256,7 @@ class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable,
      *
      * @return int
      */
-    public function count()
+    public function count() : int
     {
         return count($this->container);
     }
@@ -266,7 +266,7 @@ class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable,
      *
      * @return string
      */
-    public function jsonSerialize()
+    public function jsonSerialize() : mixed
     {
         return $this->toArray();
     }
@@ -275,6 +275,8 @@ class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable,
      * Serialize the object
      *
      * @return string
+     *
+     * @deprecated No longer used from PHP 8.1.0
      */
     public function serialize()
     {
@@ -282,13 +284,33 @@ class ConditionalCollection implements ArrayAccess, Countable, JsonSerializable,
     }
 
     /**
+     * @inherits
+     */
+    public function __serialize() : array
+    {
+        return $this->toArray();
+    }
+
+    /**
      * Unserialize the object
      *
      * @param  string $serialized
+     *
+     * @deprecated No longer used from PHP 8.1.0
      */
     public function unserialize($serialized)
     {
         foreach (explode(',', unserialize($serialized)) as $periodStr) {
+            $this->container[] = ConditionalPeriod::parse($periodStr);
+        }
+    }
+
+    /**
+     * @inherits
+     */
+    public function __unserialize(array $data): void
+    {
+        foreach ($data as $periodStr) {
             $this->container[] = ConditionalPeriod::parse($periodStr);
         }
     }

@@ -18,16 +18,18 @@ class ConditionalPeriodByCategoryTest extends TestCase
         $this->assertInstanceOf(ConditionalCollection::class, new ConditionalCollection);
     }
 
+
     public function testCreatingWithInvalidValues()
     {
         foreach ([-1, 0, 1, null] as $val) {
             try {
                 $collection = ConditionalCollection::create($val);
+
+                $this->assertNull($collection, 'Constructed with '.strval($val));
             } catch (Exception $e) {
                 $this->assertInstanceOf(InvalidArgumentException::class, $e);
                 $this->assertStringStartsWith('Only MX\ConditionalPeriod (as object or string form) can be stored', $e->getMessage());
             }
-            $this->assertNull($collection, 'Constructed with '.strval($val));
         }
     }
 
@@ -81,11 +83,12 @@ class ConditionalPeriodByCategoryTest extends TestCase
         foreach ([-1, 0, 1, null, new CarbonInterval, ConditionalPeriod::parse('DP1DP2DP3D')] as $val) {
             try {
                 $collection = ConditionalCollection::parse($val);
+
+                $this->assertNull($collection, 'Constructed with '.strval($val));
             } catch (Exception $e) {
                 $this->assertInstanceOf(InvalidArgumentException::class, $e);
                 $this->assertStringStartsWith('First argument of parse() must be a string', $e->getMessage());
             }
-            $this->assertNull($collection, 'Constructed with '.strval($val));
         }
     }
 
@@ -156,11 +159,12 @@ class ConditionalPeriodByCategoryTest extends TestCase
         foreach ([[-1], [0], [1], [null], [new CarbonInterval]] as $val) {
             try {
                 $collection = ConditionalCollection::fromArray($val);
+
+                $this->assertNull($collection, 'Constructed with '.strval($val));
             } catch (Exception $e) {
                 $this->assertInstanceOf(InvalidArgumentException::class, $e);
                 $this->assertStringStartsWith('First argument of fromArray() must only contain only MX\ConditionalPeriod or its string form elements', $e->getMessage());
             }
-            $this->assertNull($collection, 'Constructed with '.strval($val));
         }
     }
 
@@ -195,10 +199,11 @@ class ConditionalPeriodByCategoryTest extends TestCase
         foreach ([-1, 0, 1, null, new CarbonInterval] as $val) {
             try {
                 $collection = ConditionalCollection::fromJson($val);
+
+                $this->assertNull($collection, 'Constructed with '.strval($val));
             } catch (TypeError $e) {
                 $this->assertInstanceOf(TypeError::class, $e);
             }
-            $this->assertNull($collection, 'Constructed with '.strval($val));
         }
     }
 
@@ -734,14 +739,14 @@ class ConditionalPeriodByCategoryTest extends TestCase
             10,
             new CarbonInterval('P9D')
         );
-        $cStr = 'C:24:"MX\ConditionalCollection":32:{s:24:"C1-3P3D,C4-6P6D,C7-10P9D";}';
+        $cStr = 'O:24:"MX\ConditionalCollection":3:{i:0;s:7:"C1-3P3D";i:1;s:7:"C4-6P6D";i:2;s:8:"C7-10P9D";}';
 
         $this->assertEquals($cStr, serialize($c));
     }
 
     public function testUnserialize()
     {
-        $cStr = 'C:24:"MX\ConditionalCollection":32:{s:24:"C1-3P3D,C4-6P6D,C7-10P9D";}';
+        $cStr = 'O:24:"MX\ConditionalCollection":3:{i:0;s:7:"C1-3P3D";i:1;s:7:"C4-6P6D";i:2;s:8:"C7-10P9D";}';
         $c0 = new ConditionalPeriod(
             ConditionalType::CATEGORY,
             1,

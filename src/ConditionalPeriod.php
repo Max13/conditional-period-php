@@ -330,6 +330,8 @@ class ConditionalPeriod implements Serializable
      * Serialize the object
      *
      * @return string
+     *
+     * @deprecated No longer used from PHP 8.1.0
      */
     public function serialize()
     {
@@ -337,14 +339,37 @@ class ConditionalPeriod implements Serializable
     }
 
     /**
+     * @inherits
+     */
+    public function __serialize() : array
+    {
+        return [
+            $this->type,
+            $this->lower instanceof CarbonInterval ? $this->lower->spec() : $this->lower,
+            $this->upper instanceof CarbonInterval ? $this->upper->spec() : $this->upper,
+            $this->result instanceof CarbonInterval ? $this->result->spec() : $this->result,
+        ];
+    }
+
+    /**
      * Unserialize the object
      *
      * @param  string $serialized
+     *
+     * @deprecated No longer used from PHP 8.1.0
      */
     public function unserialize($serialized)
     {
         $arguments = self::parseToArray(unserialize($serialized));
 
         $this->__construct(...$arguments);
+    }
+
+    /**
+     * @inherits
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->__construct(...$data);
     }
 }
